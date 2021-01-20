@@ -1,5 +1,6 @@
-#sample input 1
+# Sample Input 1 (no don't cares)
 
+```
 4
 2
 4
@@ -12,8 +13,11 @@
 15
 -1
 -1
+```
 
-#sample input 2
+# Sample Input 2 (includes don't cares)
+
+```
 5
 2
 3
@@ -29,3 +33,14 @@
 21
 23
 -1
+```
+
+# Sample Output 1
+
+```
+```
+
+# Sample Output 2
+
+```
+```
