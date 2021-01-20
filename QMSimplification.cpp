@@ -33,6 +33,9 @@ string decimalToBinary(vector < int > v, const int n) {
 }
 
 string numberToString(int n) {
+	if (!n) {
+		return "0";
+	}
 	string res;
 	while (n) {
 		res += n % 10 + '0';
@@ -154,9 +157,47 @@ bool partition(vector < vector < vector < pair < vector < int > , bool > > > > &
 	return flg;
 }
 
-const vector < int > bestPick(vector < vector < int > > &pImps, set < int > &essentialImps,
-set < int > &uncoveredMinTerms) {
-	vector < int > res;
+bool backtrack(vector < vector < int > > &pImps, set < int > &essentialImps,
+set < int > &uncoveredMinTerms, const int i, vector < int > &pickedImps, vector < int > tmp,
+int pickedCnt = 0, int ind = 0) {
+	if (i == pickedCnt) {
+		set < int > tmpSet = uncoveredMinTerms;
+		for (int j = 0; j < tmp.size(); j++) {
+			for (int k = 0; k < pImps[tmp[j]].size(); k++) {
+				tmpSet.erase(pImps[tmp[j]][k]);
+			}
+		}
+		if (tmpSet.empty()) {
+			pickedImps = tmp;
+		}
+		/*cout << "\n\nDEBUG" << "i:" << i << "\n";
+		for (int j = 0; j < tmp.size(); j++) {
+			cout << "  tmp[j]:  " << tmp[j] << "   " << endl;
+			for (int k = 0; k < pImps[tmp[j]].size(); k++) {
+				cout << pImps[tmp[j]][k] << "  ";
+			}
+		}		
+		cout << "\nDEBUG\n\n";*/
+		return tmpSet.empty();
+	} else if (ind >= pImps.size()) {
+		return false;
+	}
+	bool res1 = backtrack(pImps, essentialImps, uncoveredMinTerms, i, pickedImps, tmp, pickedCnt, ind + 1);
+	bool res2 = false;
+	if (essentialImps.find(ind + 1) == essentialImps.end()) {
+		tmp.push_back(ind);
+		res2 = backtrack(pImps, essentialImps, uncoveredMinTerms, i, pickedImps, tmp, pickedCnt + 1, ind + 1);
+	}
+	return res1 || res2;
+}
+
+void bestPick(vector < vector < int > > &pImps, set < int > &essentialImps,
+set < int > &uncoveredMinTerms, vector < int > &pickedImps, vector < int > &tmp) {
+	for (int i = 1; i <= pImps.size() - essentialImps.size(); i++) {
+		if (backtrack(pImps, essentialImps, uncoveredMinTerms, i, pickedImps, tmp)) {
+			return;
+		}
+	}
 }
 
 int main() {
@@ -294,5 +335,18 @@ int main() {
 		cout << endl;
 	}
 	
-	vector < int > pickedImps = bestPick(pImps, essentialImps, uncoveredMinTerms);
+	cout << "\nEssential implicants:\n";
+	for (set <int>::iterator it = essentialImps.begin(); it != essentialImps.end();) {
+		cout << "PI" << *it;
+		it++;
+		cout << (it != essentialImps.end() ? ", " : "\n");
+	}
+	
+	vector < int > pickedImps;
+	vector < int > tmp;
+	bestPick(pImps, essentialImps, uncoveredMinTerms, pickedImps, tmp);
+	cout << "\nPicked non-essential implicants:\n";
+	for (int i = 0; i < pickedImps.size(); i++) {
+		cout << "PI" << pickedImps[i] + 1 << (i != pickedImps.size() - 1 ? ", " : "\n");
+	}
 }
